@@ -5,11 +5,12 @@ This module defines the Reservation data class.
 """
 
 import json
-import os
 
 from hotel import Hotel
+from file_helper import load_json_file
 
 RESERVATIONS_FILE = "reservations.json"
+RESERVATIONS_FILE_LABEL = "reservations"
 
 
 class Reservation:
@@ -78,15 +79,7 @@ class Reservation:
         """
         Load all reservations from a JSON file.
         """
-        if not os.path.exists(filepath):
-            return []
-        try:
-            with open(filepath, "r", encoding="utf-8") as file_handle:
-                raw = json.load(file_handle)
-        except json.JSONDecodeError as exc:
-            print(f"Error reading reservations file '{filepath}': {exc}")
-            return []
-
+        raw = load_json_file(filepath, RESERVATIONS_FILE_LABEL)
         reservations = []
         for item in raw:
             try:
@@ -160,6 +153,8 @@ class Reservation:
             target.room_count,
             hotels_filepath,
         )
-        updated = [r for r in reservations if r.reservation_id != reservation_id]
+        updated = [
+            r for r in reservations if r.reservation_id != reservation_id
+        ]
         cls._save_all(updated, reservations_filepath)
         return True

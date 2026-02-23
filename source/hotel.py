@@ -5,9 +5,11 @@ This module defines the Hotel data class.
 """
 
 import json
-import os
+
+from file_helper import load_json_file
 
 HOTELS_FILE = "hotels.json"
+HOTELS_FILE_LABEL = "hotels"
 
 
 class Hotel:
@@ -77,23 +79,17 @@ class Hotel:
     def _load_all(cls, filepath):
         """
         Load all hotels from a JSON file.
-        Returns an empty list if the file does not exist or is corrupt.
         """
-        if not os.path.exists(filepath):
-            return []
-        try:
-            with open(filepath, "r", encoding="utf-8") as file_handle:
-                raw = json.load(file_handle)
-        except json.JSONDecodeError as exc:
-            print(f"Error reading hotels file '{filepath}': {exc}")
-            return []
-
+        raw = load_json_file(filepath, HOTELS_FILE_LABEL)
         hotels = []
         for item in raw:
             try:
                 hotels.append(cls.from_dict(item))
             except KeyError as exc:
-                print(f"Error loading hotel record (missing field {exc}): {item}")
+                print(
+                    f"Error loading hotel record "
+                    f"(missing field {exc}): {item}"
+                )
         return hotels
 
     @staticmethod
@@ -171,7 +167,8 @@ class Hotel:
                 if hotel.available_rooms < room_count:
                     print(
                         f"Not enough available rooms in hotel '{hotel_id}'. "
-                        f"Requested: {room_count}, Available: {hotel.available_rooms}"
+                        f"Requested: {room_count}, "
+                        f"Available: {hotel.available_rooms}"
                     )
                     return False
                 hotel.available_rooms -= room_count

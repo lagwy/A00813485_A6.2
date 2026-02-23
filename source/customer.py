@@ -5,9 +5,11 @@ This module defines the Customer data class.
 """
 
 import json
-import os
+
+from file_helper import load_json_file
 
 CUSTOMERS_FILE = "customers.json"
+CUSTOMERS_FILE_LABEL = "customers"
 
 
 class Customer:
@@ -61,22 +63,15 @@ class Customer:
         """
         Load all customers from a JSON file.
         """
-        if not os.path.exists(filepath):
-            return []
-        try:
-            with open(filepath, "r", encoding="utf-8") as file_handle:
-                raw = json.load(file_handle)
-        except json.JSONDecodeError as exc:
-            print(f"Error reading customers file '{filepath}': {exc}")
-            return []
-
+        raw = load_json_file(filepath, CUSTOMERS_FILE_LABEL)
         customers = []
         for item in raw:
             try:
                 customers.append(cls.from_dict(item))
             except KeyError as exc:
                 print(
-                    f"Error loading customer record (missing field {exc}): {item}"
+                    f"Error loading customer record "
+                    f"(missing field {exc}): {item}"
                 )
         return customers
 
