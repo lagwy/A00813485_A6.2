@@ -98,7 +98,13 @@ class TestHotelPersistence(unittest.TestCase):
         if os.path.exists(self.filepath):
             os.remove(self.filepath)
 
-    def _add_hotel(self, hotel_id="H1", name="Fiesta Inn", location="CDMX", rooms=100):
+    def _add_hotel(
+        self,
+        hotel_id="H1",
+        name="Fiesta Inn",
+        location="CDMX",
+        rooms=100,
+    ):
         hotel = Hotel(hotel_id, name, location, rooms)
         Hotel.create_hotel(hotel, self.filepath)
         return hotel
