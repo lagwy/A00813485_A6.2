@@ -33,8 +33,10 @@ class Customer:
         """
         Create a customer from a dictionary.
         """
-        return Customer(
-            customer_id=data["customer_id"], name=data["name"], email=data["email"]
+        return cls(
+            customer_id=data["customer_id"],
+            name=data["name"],
+            email=data["email"],
         )
 
     def print_customer(self):

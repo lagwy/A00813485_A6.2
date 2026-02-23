@@ -10,7 +10,14 @@ class Hotel:
     A hotel with rooms available for reservation.
     """
 
-    def __init__(self, hotel_id, name, location, total_rooms):
+    def __init__(
+        self,
+        hotel_id,
+        name,
+        location,
+        total_rooms,
+        available_rooms=None,
+    ):
         """
         Initialize a Hotel instance.
         """
@@ -18,7 +25,9 @@ class Hotel:
         self.name = name
         self.location = location
         self.total_rooms = total_rooms
-        self.available_rooms = total_rooms
+        self.available_rooms = (
+            available_rooms if available_rooms is not None else total_rooms
+        )
 
     def to_dict(self):
         """
@@ -33,16 +42,16 @@ class Hotel:
         }
 
     @classmethod
-    def from_dict(data):
+    def from_dict(cls, data):
         """
         Create a hotel from a dictionary.
         """
-        return Hotel(
+        return cls(
             hotel_id=data["hotel_id"],
             name=data["name"],
             location=data["location"],
             total_rooms=data["total_rooms"],
-            available_rooms=data["available_rooms"] if "available_rooms" in data else data["total_rooms"],
+            available_rooms=data.get("available_rooms", data["total_rooms"]),
         )
 
     def print_hotel(self):

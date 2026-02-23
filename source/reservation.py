@@ -10,7 +10,14 @@ class Reservation:
     A room reservation linking a customer to a hotel.
     """
 
-    def __init__(self, reservation_id, customer_id, hotel_id, room_count, date):
+    def __init__(
+        self,
+        reservation_id,
+        customer_id,
+        hotel_id,
+        room_count,
+        date,
+    ):
         """
         Initialize a Reservation instance.
         """
@@ -33,12 +40,16 @@ class Reservation:
         }
 
     @classmethod
-    def from_dict(data):
+    def from_dict(cls, data):
         """
         Create a reservation from a dictionary.
         """
-        return Reservation(
-            reservation_id=data["reservation_id"], customer_id=data["customer_id"], hotel_id=data["hotel_id"], room_count=data["room_count"], date=data["date"]
+        return cls(
+            reservation_id=data["reservation_id"],
+            customer_id=data["customer_id"],
+            hotel_id=data["hotel_id"],
+            room_count=data["room_count"],
+            date=data["date"],
         )
 
     def print_reservation(self):
