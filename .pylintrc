@@ -1,3 +1,6 @@
 [DESIGN]
 # Allow Reservation's init to have more than 5 arguments
 max-args=6
+
+[MESSAGES CONTROL]
+disable=broad-exception-caught
