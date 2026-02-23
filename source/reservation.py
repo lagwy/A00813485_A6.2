@@ -4,6 +4,13 @@ Reservation
 This module defines the Reservation data class.
 """
 
+import json
+import os
+
+from hotel import Hotel
+
+RESERVATIONS_FILE = "reservations.json"
+
 
 class Reservation:
     """
@@ -61,3 +68,98 @@ class Reservation:
         print(f"Hotel ID: {self.hotel_id}")
         print(f"Room Count: {self.room_count}")
         print(f"Date: {self.date}")
+
+    # ------------------------------------------------------------------
+    # File operations
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def _load_all(cls, filepath):
+        """
+        Load all reservations from a JSON file.
+        """
+        if not os.path.exists(filepath):
+            return []
+        try:
+            with open(filepath, "r", encoding="utf-8") as file_handle:
+                raw = json.load(file_handle)
+        except json.JSONDecodeError as exc:
+            print(f"Error reading reservations file '{filepath}': {exc}")
+            return []
+
+        reservations = []
+        for item in raw:
+            try:
+                reservations.append(cls.from_dict(item))
+            except KeyError as exc:
+                print(
+                    f"Error loading reservation record "
+                    f"(missing field {exc}): {item}"
+                )
+        return reservations
+
+    @staticmethod
+    def _save_all(reservations, filepath):
+        """
+        Save a list of Reservation objects to a JSON file.
+        """
+        with open(filepath, "w", encoding="utf-8") as file_handle:
+            json.dump(
+                [r.to_dict() for r in reservations], file_handle, indent=2
+            )
+
+    # ------------------------------------------------------------------
+    # CRUD operations
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def create_reservation(
+        cls,
+        reservation,
+        reservations_filepath=RESERVATIONS_FILE,
+        hotels_filepath="hotels.json",
+    ):
+        """
+        Create a new reservation and update hotel room availability.
+        """
+        success = Hotel.reserve_room(
+            reservation.hotel_id,
+            reservation.room_count,
+            hotels_filepath,
+        )
+        if not success:
+            return False
+        reservations = cls._load_all(reservations_filepath)
+        reservations.append(reservation)
+        cls._save_all(reservations, reservations_filepath)
+        return True
+
+    @classmethod
+    def cancel_reservation(
+        cls,
+        reservation_id,
+        reservations_filepath=RESERVATIONS_FILE,
+        hotels_filepath="hotels.json",
+    ):
+        """
+        Cancel a reservation and restore hotel room availability.
+        """
+        reservations = cls._load_all(reservations_filepath)
+        target = None
+        for res in reservations:
+            if res.reservation_id == reservation_id:
+                target = res
+                break
+
+        if target is None:
+            print(f"Reservation '{reservation_id}' not found.")
+            return False
+
+        Hotel.cancel_reservation(
+            target.hotel_id,
+            target.room_count,
+            hotels_filepath,
+        )
+        updated = [r for r in reservations if r.reservation_id != reservation_id]
+        cls._save_all(updated, reservations_filepath)
+        return True
